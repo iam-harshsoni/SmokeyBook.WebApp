@@ -39,7 +39,7 @@ namespace SmokeyBook.WebApp.Areas.Admin.Controllers
             return View();
         }
 
-        public IActionResult Upsert()
+        public IActionResult Upsert(int? id)
         {
             ProductVM productVM = new ProductVM();
 
@@ -48,12 +48,26 @@ namespace SmokeyBook.WebApp.Areas.Admin.Controllers
                 Text=x.Name,
                 Value=x.Id.ToString()
             });
+            productVM.Product = new Product();
 
-            return View(productVM);
+            if (id == null || id == 0)
+            {
+                //create
+
+                return View(productVM);
+            }
+            else
+            {
+                //update
+
+                productVM.Product = _unitOfWork.productRepository.Get(x => x.Id == id);
+                return View(productVM);
+            }
+             
         }
 
         [HttpPost]
-       public IActionResult Upsert(ProductVM productVM,IFormFile file)
+       public IActionResult Upsert(ProductVM productVM,IFormFile? file)
         {
             if (ModelState.IsValid)
             {
@@ -102,7 +116,7 @@ namespace SmokeyBook.WebApp.Areas.Admin.Controllers
 
                
                 _unitOfWork.Save();
-                TempData["success"] = "Category saved successfully";
+                TempData["success"] = "Category Saved / Updated successfully";
                 return RedirectToAction("GetProducts");
             }
 
